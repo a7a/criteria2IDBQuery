@@ -1,5 +1,5 @@
 {
-  "name": "criteria2IDBQuery",
+  "name": "criteria2idbquery",
   "version": "0.1.0",
   "description": "generate indexedDB query from criteria",
   "main": "dist/js/node/criteria2IDBQuery.js",

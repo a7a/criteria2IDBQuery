@@ -2,7 +2,7 @@
 
 ## Install
 
-npm install criteria2IDBQuery
+npm install criteria2idbquery
 
 
 ## Methods
