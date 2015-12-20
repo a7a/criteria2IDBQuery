@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <div id="controller">
+    <input id="toggleDebug" type="button" value="debug">
+    <input id="all" type="button" value="all">
+    <br>
+  </div>
+
+  <div id="result"></div>
+
+
+  <script src="../node_modules/kriteria/dist/js/browser/Kriteria.js"></script>
+  <script src="../dist/js/browser/criteria2IDBQuery.js"></script>
+  <script src="./test.js"></script>
+  <script src="./test1.js"></script>
+  <script src="./test2.js"></script>
+  <script src="./test99.js"></script>
+  <script>
+    var db = null;
+
+    var data = [
+      { key1: 100, key2: 100, key3: 300, key4: "aaa" },
+      { key1: 100, key2: 100, key3: 310, key4: "aab" },
+      { key1: 100, key2: 100, key3: 320, key4: "abc" },
+      { key1: 100, key2: 100, key3: 330, key4: "ab" },
+      { key1: 100, key2: 100, key3: 340, key4: "a" },
+      { key1: 100, key2: 100, key3: 350, key4: "ac" },
+      { key1: 100, key2: 110, key3: 300, key4: "aabc" },
+      { key1: 100, key2: 110, key3: 310, key4: "aaabc" },
+      { key1: 100, key2: 110, key3: 320, key4: "aab" },
+      { key1: 100, key2: 110, key3: 330, key4: "aac" },
+      { key1: 100, key2: 110, key3: 340, key4: "bbcabc" },
+      { key1: 100, key2: 110, key3: 350, key4: "abca" },
+      { key1: 100, key2: 120, key3: 400, key4: "abcc" },
+      { key1: 100, key2: 120, key3: 450, key4: "adbc" },
+      { key1: 100, key2: 120, key3: 480, key4: "abcabc" },
+      { key1: 100, key2: 100, key3: 300, key4: "aaaabcddd" },
+      { key1: 100, key2: 100, key3: 310, key4: "abababc" },
+      { key1: 100, key2: 100, key3: 320, key4: "100" },
+      { key1: 100, key2: 100, key3: 360, key4: "697071" },
+      { key1: 200, key2: 100, key3: 100, key4: "abc" },
+      { key1: 200, key2: 100, key3: 200, key4: "dabc" },
+      { key1: 200, key2: 110, key3: 300, key4: "" },
+      { key1: 200, key2: 110, key3: 310, key4: null },
+      { key1: 300, key2: 100, key3: 100, key4: void 0 },
+      { key1: 300, key2: 100, key3: 200 },
+      { key1: 300, key2: 100, key3: 300, key4: "xxx" },
+      { key1: 300, key2: 100, key3: 400, key4: "xabcx" },
+      { key1: 400, key2: 100, key3: 100, key4: "cba" },
+      { key1: 400, key2: 100, key3: 200, key4: " abc" },
+      { key1: 400, key2: 100, key3: 300, key4: "abc " },
+      { key1: 400, key2: 100, key3: 400, key4: "bc" },
+      { key1: 400, key2: 100, key3: 500, key4: "b" }
+    ];
+
+    indexedDB.deleteDatabase("test");
+
+    var req = indexedDB.open("test", 1);
+    req.onupgradeneeded = function(e) {
+      console.log("# db upgrade start #");
+      db = e.target.result;
+
+      var store = db.createObjectStore("store1", { autoIncrement: true });
+      store.createIndex("idx1", "key1");
+      store.createIndex("idx1-2", ["key1", "key2"]);
+      store.createIndex("idx1-2-3", ["key1", "key2", "key3"]);
+      store.createIndex("idx1-3", ["key1", "key3"]);
+
+      for(var i = 0, l = data.length; i < l; i = i + 1) {
+        store.add(data[i]);
+      }
+
+      console.log("# db upgrade end #")
+    };
+    req.onsuccess = function(e) {
+      console.log("# db open success #");
+      db = e.target.result;
+    };
+
+
+    function all() {
+      var loop = function() {
+        if(test.length > 0) {
+          test.shift()(function(){
+            loop();
+          });
+        }
+
+      };
+      loop();
+    }
+
+
+    var test = [];
+    test = test.concat(test1);
+    test = test.concat(test2);
+
+    document.getElementById("toggleDebug").onclick = toggleDebug;
+    document.getElementById("all").onclick = all;
+
+    // load("test1", test1);
+    load("test2", test2);
+    load("test99", test99);
+
+    /*
+      01. eq eq
+        same_key
+          overlap_range
+          not_overlap_range
+        different_key
+          overlap_range
+          not_overlap_range
+      02. eq ne
+      03. eq gt
+      04. eq ge
+      05. eq lt
+      06. eq le
+      07. eq in
+      08. eq not_in
+      09. eq between
+      10. eq not_between
+      11. eq match
+      12. eq not_match
+
+      13. ne ne
+      14. ne gt
+      15. ne ge
+      16. ne lt
+      17. ne le
+      18. ne in
+      19. ne not_in
+      20. ne between
+      21. ne not_between
+      22. ne match
+      23. ne not_match
+
+      24. gt gt
+      25. gt ge
+      26. gt lt
+      27. gt le
+      28. gt in
+      29. gt not_in
+      30. gt between
+      31. gt not_between
+      32. gt match
+      33. gt not_match
+
+      34. ge ge
+      35. ge lt
+      36. ge le
+      37. ge in
+      38. ge not_in
+      39. ge between
+      40. ge not_between
+      41. ge match
+      42. ge not_match
+
+      43. lt lt
+      44. lt le
+      45. lt in
+      46. lt not_in
+      47. lt between
+      48. lt not_between
+      49. lt match
+      50. lt not_match
+
+      51. le le
+      52. le in
+      53. le not_in
+      54. le between
+      55. le not_between
+      56. le match
+      57. le not_match
+
+      58. in in
+      59. in not_in
+      60. in between
+      61. in not_between
+      62. in match
+      63. in not_match
+
+      64. not_in not_in
+      65. not_in between
+      66. not_in not_between
+      67. not_in match
+      68. not_in not_match
+
+      69. between between
+      70. between not_between
+      71. between match
+      72. between not_match
+
+      73. not_between not_between
+      74. not_between match
+      75. not_between not_match
+
+      76. match match
+      77. match not_match
+
+      78. not_match not_match
+    */
+
+  </script>
+</body>
+</html>
