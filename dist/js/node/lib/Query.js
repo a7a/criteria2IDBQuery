@@ -1,1 +1,104 @@
-!function(t){"use strict";var n=function(){this.keys=[],this.conditions=[]};n.prototype.addKeysFromCondition=function(t){"value"!==t.key_type||~this.keys.indexOf(t.left_key)||(this.keys[this.keys.length]=t.left_key)},n.prototype.addCondition=function(t,n){this.addKeysFromCondition(t),n?this.conditions=this.conditions.concat(t.clone().not().normalize()):this.conditions=this.conditions.concat(t.clone().normalize())},n.prototype.merge=function(t){var n=0,o=0;for(n=0,o=t.keys.length;o>n;n+=1)~this.keys.indexOf(t.keys[n])||(this.keys[this.keys.length]=t.keys[n]);for(n=0,o=t.conditions.length;o>n;n+=1)this.conditions[this.conditions.length]=t.conditions[n].clone();return this},n.prototype.clone=function(){var t=new n;t.keys=this.keys.concat();for(var o=0,i=this.conditions.length;i>o;o+=1)t.conditions[o]=this.conditions[o].clone();return t},n.prototype.not=function(){for(var t=[],o=0,i=this.conditions.length;i>o;o+=1){var e=new n;e.addCondition(this.conditions[o],!0),t[t.length]=e}return t},t.Query=n}(this);
+/* Query.js */
+
+(function(cxt) {
+  "use strict";
+
+  /**
+   * @public
+   * @class
+   */
+  var Query = function Query() {
+    this.keys = [];
+    this.conditions = [];
+  };
+
+  /**
+  * @public
+  * @function
+  * @param {Condition} condition -
+  * @returns {void}
+  */
+  Query.prototype.addKeysFromCondition = function addKeysFromCondition(condition) {
+    if(condition.key_type === "value" &&
+       !~this.keys.indexOf(condition.left_key)) {
+      this.keys[this.keys.length] = condition.left_key;
+    }
+  };
+
+  /**
+  * @public
+  * @function
+  * @param {Condition} condition -
+  * @param {Boolean} not_flg
+  * @returns {void}
+  */
+  Query.prototype.addCondition = function addCondition(condition, not_flg) {
+    this.addKeysFromCondition(condition);
+
+    if(not_flg) {
+      this.conditions = this.conditions.concat(condition.clone().not().normalize());
+    } else {
+      this.conditions = this.conditions.concat(condition.clone().normalize());
+    }
+  };
+
+  /**
+  * @public
+  * @function
+  * @param {Query} query -
+  * @returns {Query}
+  */
+  Query.prototype.merge = function merge(query) {
+    var i = 0, l = 0;
+
+    for(i = 0, l = query.keys.length; i < l; i = i + 1) {
+      if(!~this.keys.indexOf(query.keys[i])) {
+        this.keys[this.keys.length] = query.keys[i];
+      }
+    }
+
+    for(i = 0, l = query.conditions.length; i < l; i = i + 1) {
+      this.conditions[this.conditions.length] = query.conditions[i].clone();
+    }
+
+    return this;
+  };
+
+  /**
+  * @public
+  * @function
+  * @returns {Query}
+  */
+  Query.prototype.clone = function clone() {
+    var ret = new Query();
+
+    ret.keys = this.keys.concat();
+
+    for(var i = 0, l = this.conditions.length; i < l; i = i + 1) {
+      ret.conditions[i] = this.conditions[i].clone();
+    }
+
+    return ret;
+  };
+
+  /**
+  * @public
+  * @function
+  * @returns {Array<Query>}
+  */
+  Query.prototype.not = function not() {
+    var ret = [];
+
+    for(var i = 0, l = this.conditions.length; i < l; i = i + 1) {
+      var new_query = new Query();
+      new_query.addCondition(this.conditions[i], true);
+      ret[ret.length] = new_query;
+    }
+
+    return ret;
+  };
+
+
+  cxt.Query = Query;
+
+})(this);

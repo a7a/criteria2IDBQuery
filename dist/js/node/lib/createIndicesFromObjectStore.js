@@ -1,1 +1,25 @@
-!function(e){"use strict";var n=function(e){for(var n=[e],t=0,r=e.indexNames.length;r>t;t=t+1|0)n[n.length]=e.index(e.indexNames[t]);return n};e.createIndicesFromObjectStore=n}(this);
+/* createIndicesFromObjectStore.js */
+
+(function (cxt) {
+  "use strict";
+
+  /**
+  * @public
+  * @function
+  * @param {IDBObjectStore} store -
+  * @returns Array<IDBObjectStore|Index>
+  */
+  var createIndicesFromObjectStore = function createIndicesFromObjectStore(store) {
+    var indices = [store];
+
+    for(var i = 0, l = store.indexNames.length; i < l; i = (i + 1)|0) {
+      indices[indices.length] = store.index(store.indexNames[i]);
+    }
+
+    return indices;
+  };
+
+
+  cxt.createIndicesFromObjectStore = createIndicesFromObjectStore;
+
+}(this));
